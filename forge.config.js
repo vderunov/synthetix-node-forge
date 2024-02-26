@@ -41,7 +41,7 @@ module.exports = {
               js: './src/renderer.js',
               name: 'main_window',
               preload: {
-                js: './src/preload.js',
+                js: './src/main/preload.js',
               },
             },
           ],
