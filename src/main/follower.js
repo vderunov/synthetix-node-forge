@@ -166,7 +166,7 @@ export async function downloadFollower(_e, { log = logger.log } = {}) {
   });
 
   if (fileExt === 'zip') {
-    let zip = new AdmZip(path.join(ROOT, `ipfs-cluster-follow.${fileExt}`));
+    const zip = new AdmZip(path.join(ROOT, `ipfs-cluster-follow.${fileExt}`));
     zip.extractAllTo(ROOT, true);
   } else {
     await new Promise((resolve, reject) => {

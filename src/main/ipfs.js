@@ -153,7 +153,7 @@ export async function downloadIpfs(_e, { log = logger.log } = {}) {
   });
 
   if (fileExt === 'zip') {
-    let zip = new AdmZip(path.join(ROOT, `ipfs.${fileExt}`));
+    const zip = new AdmZip(path.join(ROOT, `ipfs.${fileExt}`));
     zip.extractAllTo(ROOT, true);
   } else {
     await new Promise((resolve, reject) => {
