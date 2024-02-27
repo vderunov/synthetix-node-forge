@@ -6,13 +6,14 @@ module.exports = {
     es6: true,
   },
   parserOptions: {
-    ecmaVersion: 2020,
+    ecmaVersion: 2021,
     sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
   },
   rules: {
+    'react/prop-types': 'off',
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
     'react/react-in-jsx-scope': 'off',

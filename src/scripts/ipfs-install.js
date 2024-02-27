@@ -1,4 +1,4 @@
-import { downloadIpfs, ipfsDaemon, ipfsTeardown } from '../main/ipfs';
+import { downloadIpfs, ipfsDaemon, ipfsTeardown } from '../server/ipfs';
 
 async function main() {
   await downloadIpfs();

@@ -8,10 +8,10 @@
  */
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, ipcMain, Menu, shell, Tray } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell, Tray, session } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
-import { resolveHtmlPath } from './util';
+// import { resolveHtmlPath } from './server/util';
 import {
   configureIpfs,
   downloadIpfs,
@@ -21,7 +21,7 @@ import {
   ipfsTeardown,
   waitForIpfs,
   rpcRequest,
-} from './ipfs';
+} from './server/ipfs';
 import {
   configureFollower,
   downloadFollower,
@@ -30,14 +30,14 @@ import {
   followerId,
   followerIsInstalled,
   followerKill,
-} from './follower';
-import { DAPPS, resolveDapp } from './dapps';
-import { fetchPeers } from './peers';
-import { SYNTHETIX_NODE_APP_CONFIG } from '../const';
-import * as settings from './settings';
+} from './server/follower';
+import { DAPPS, resolveDapp } from './server/dapps';
+import { fetchPeers } from './server/peers';
+import { SYNTHETIX_NODE_APP_CONFIG } from './const';
+import * as settings from './server/settings';
 import http from 'http';
 import fetch from 'node-fetch';
-import { ROOT } from './settings';
+import { ROOT } from './server/settings';
 
 logger.transports.file.level = 'info';
 
@@ -116,7 +116,7 @@ function createWindow() {
     // frame: false,
     icon: getAssetPath('icon.icns'),
     webPreferences: {
-      // preload: path.join(__dirname, 'preload.js'),
+      // eslint-disable-next-line no-undef
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
@@ -125,7 +125,9 @@ function createWindow() {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
 
+  // TODO: What to do with resolveHtmlPath?
   // mainWindow.loadURL(resolveHtmlPath('index.html'));
+  // eslint-disable-next-line no-undef
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -240,6 +242,15 @@ function generateMenuItems() {
 }
 
 app.once('ready', async () => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': "connect-src 'self'",
+      },
+    });
+  });
+
   // Hide the app from the dock
   if (app.dock && !(await settings.get('dock'))) {
     app.dock.hide();
