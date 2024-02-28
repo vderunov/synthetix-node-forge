@@ -1,3 +1,5 @@
+import fs from 'fs';
+import http from 'http';
 /**
  * This module executes inside of electron's main process. You can start
  * electron renderer process from here and communicate with the other processes
@@ -7,21 +9,12 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import fs from 'fs';
-import { app, BrowserWindow, ipcMain, Menu, shell, Tray } from 'electron';
+import { BrowserWindow, Menu, Tray, app, ipcMain, shell } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
-import { resolveHtmlPath } from './util';
-import {
-  configureIpfs,
-  downloadIpfs,
-  ipfsDaemon,
-  ipfsIsInstalled,
-  ipfsIsRunning,
-  ipfsTeardown,
-  waitForIpfs,
-  rpcRequest,
-} from './ipfs';
+import fetch from 'node-fetch';
+import { SYNTHETIX_NODE_APP_CONFIG } from './const';
+import { DAPPS, resolveDapp } from './main/dapps';
 import {
   configureFollower,
   downloadFollower,
@@ -30,14 +23,20 @@ import {
   followerId,
   followerIsInstalled,
   followerKill,
-} from './follower';
-import { DAPPS, resolveDapp } from './dapps';
-import { fetchPeers } from './peers';
-import { SYNTHETIX_NODE_APP_CONFIG } from '../const';
-import * as settings from './settings';
-import http from 'http';
-import fetch from 'node-fetch';
-import { ROOT } from './settings';
+} from './main/follower';
+import {
+  configureIpfs,
+  downloadIpfs,
+  ipfsDaemon,
+  ipfsIsInstalled,
+  ipfsIsRunning,
+  ipfsTeardown,
+  rpcRequest,
+  waitForIpfs,
+} from './main/ipfs';
+import { fetchPeers } from './main/peers';
+import * as settings from './main/settings';
+import { ROOT } from './main/settings';
 
 logger.transports.file.level = 'info';
 
@@ -56,19 +55,6 @@ fs.rmSync(path.join(ROOT, 'ipfs-cluster-follow.pid'), { force: true });
 
 let tray = null;
 let mainWindow = null;
-
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
-
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets')
-  : path.join(__dirname, '../../assets');
-
-const getAssetPath = (...paths) => {
-  return path.join(RESOURCES_PATH, ...paths);
-};
 
 function updateContextMenu() {
   const menu = generateMenuItems();
@@ -114,9 +100,8 @@ function createWindow() {
     width: 600,
     height: 470,
     // frame: false,
-    icon: getAssetPath('icon.icns'),
+    icon: path.join(__dirname, '../../assets/icon.ico'),
     webPreferences: {
-      // preload: path.join(__dirname, 'preload.js'),
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
@@ -125,7 +110,6 @@ function createWindow() {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
 
-  // mainWindow.loadURL(resolveHtmlPath('index.html'));
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -177,10 +161,7 @@ function generateMenuItems() {
       },
     },
     devTools: {
-      label:
-        mainWindow && mainWindow.webContents.isDevToolsOpened()
-          ? 'Close DevTools'
-          : 'Open DevTools',
+      label: mainWindow?.webContents.isDevToolsOpened() ? 'Close DevTools' : 'Open DevTools',
       click: () => {
         if (mainWindow) {
           if (mainWindow.webContents.isDevToolsOpened()) {
@@ -193,7 +174,7 @@ function generateMenuItems() {
       },
     },
     dock: {
-      label: app.dock && app.dock.isVisible() ? 'Hide Dock' : 'Show Dock',
+      label: app.dock?.isVisible() ? 'Hide Dock' : 'Show Dock',
       click: async () => {
         if (app.dock) {
           if (app.dock.isVisible()) {
@@ -254,7 +235,7 @@ app.once('ready', async () => {
 
 function createTray() {
   // Create a Tray instance with the icon you want to use for the menu bar
-  tray = new Tray(getAssetPath('tray@3x.png'));
+  tray = new Tray( path.join(__dirname, '../../assets/tray@3x.png'));
   tray.on('mouse-down', (_event) => {
     if (mainWindow?.isVisible()) {
       mainWindow?.focus();
@@ -335,7 +316,7 @@ ipcMain.handle('dapps', async () => {
 });
 ipcMain.handle('dapp', async (_event, id) => {
   const dapp = DAPPS.find((dapp) => dapp.id === id);
-  return dapp && dapp.url ? `http://${dapp.id}.localhost:8888` : null;
+  return dapp?.url ? `http://${dapp.id}.localhost:8888` : null;
 });
 
 async function resolveAllDapps() {
@@ -386,7 +367,7 @@ http
   .createServer(async (req, res) => {
     const id = `${req.headers.host}`.replace('.localhost:8888', '');
     const dapp = DAPPS.find((dapp) => dapp.id === id);
-    if (dapp && dapp.qm) {
+    if (dapp?.qm) {
       try {
         const response = await fetch(`http://127.0.0.1:8080/ipfs/${dapp.qm}${req.url}`);
         if (response.status !== 404) {

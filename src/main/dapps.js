@@ -1,9 +1,9 @@
+import * as contentHash from '@ensdomains/content-hash';
 import logger from 'electron-log';
 import fetch from 'node-fetch';
-import { createPublicClient, http } from 'viem';
+import { http, createPublicClient } from 'viem';
 import { mainnet } from 'viem/chains';
 import { namehash, normalize } from 'viem/ens';
-import * as contentHash from '@ensdomains/content-hash';
 import { rpcRequest } from './ipfs';
 
 Object.assign(global, { fetch });
@@ -54,7 +54,7 @@ export async function resolveEns(dapp) {
 
 export async function resolveQm(ipns) {
   try {
-    const ipfsPath = await rpcRequest(`name/resolve`, [ipns]);
+    const ipfsPath = await rpcRequest('name/resolve', [ipns]);
     const qm = ipfsPath.Path.slice(6); // remove /ipfs/
     return qm; // Qm
   } catch {
