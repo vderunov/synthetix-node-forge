@@ -1,15 +1,15 @@
 import { exec, spawn } from 'child_process';
-import https from 'https';
 import { createReadStream, createWriteStream, promises as fs, readFileSync, rmSync } from 'fs';
-import { pipeline } from 'stream/promises';
+import https from 'https';
 import os from 'os';
-import zlib from 'zlib';
-import tar from 'tar';
 import path from 'path';
+import zlib from 'zlib';
+import AdmZip from 'adm-zip';
 import logger from 'electron-log';
+import { pipeline } from 'stream/promises';
+import tar from 'tar';
 import { SYNTHETIX_IPNS } from '../const';
 import { ROOT } from './settings';
-import AdmZip from 'adm-zip';
 import { getPlatformDetails } from './util';
 
 // Change if we ever want to store all follower info in a custom folder

@@ -1,15 +1,15 @@
-import { exec, spawn, execSync } from 'child_process';
-import https from 'https';
+import { exec, execSync, spawn } from 'child_process';
 import { createReadStream, createWriteStream, promises as fs, rmSync } from 'fs';
-import { pipeline } from 'stream/promises';
-import os from 'os';
-import zlib from 'zlib';
-import tar from 'tar';
 import http from 'http';
+import https from 'https';
+import os from 'os';
 import path from 'path';
-import { ROOT } from './settings';
-import logger from 'electron-log';
+import zlib from 'zlib';
 import AdmZip from 'adm-zip';
+import logger from 'electron-log';
+import { pipeline } from 'stream/promises';
+import tar from 'tar';
+import { ROOT } from './settings';
 import { getPlatformDetails } from './util';
 
 const HOME = os.homedir();
@@ -21,7 +21,7 @@ const IPFS_CLI = path.join(
 );
 
 const BASE_URL = new URL('http://127.0.0.1:5001/api/v0/');
-export async function rpcRequest(relativePath, args = [], flags) {
+export async function rpcRequest(relativePath, args, flags) {
   const query = new URLSearchParams(flags);
   args.forEach((arg) => query.append('arg', arg));
   const url = new URL(relativePath, BASE_URL);
@@ -29,14 +29,12 @@ export async function rpcRequest(relativePath, args = [], flags) {
 
   if (res.ok) {
     const contentType = res.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType?.includes('application/json')) {
       return res.json();
-    } else {
-      return res.text();
     }
-  } else {
-    throw new Error(`RPC HTTP Error: ${res.status} on path: ${relativePath}`);
+    return res.text();
   }
+  throw new Error(`RPC HTTP Error: ${res.status} on path: ${relativePath}`);
 }
 
 export function ipfsTeardown() {
@@ -154,7 +152,7 @@ export async function downloadIpfs(_e, { log = logger.log } = {}) {
 
   if (fileExt === 'zip') {
     const zip = new AdmZip(path.join(ROOT, `ipfs.${fileExt}`));
-    zip.extractAllTo(ROOT, true);
+    await zip.extractAllTo(ROOT, true);
   } else {
     await new Promise((resolve, reject) => {
       createReadStream(path.join(ROOT, `ipfs.${fileExt}`))
@@ -167,7 +165,7 @@ export async function downloadIpfs(_e, { log = logger.log } = {}) {
 
   const isInstalled = await ipfsIsInstalled();
   if (isInstalled) {
-    log(`IPFS installed successfully`);
+    log('IPFS installed successfully');
   } else {
     throw new Error('IPFS installation failed.');
   }
