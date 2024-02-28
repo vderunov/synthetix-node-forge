@@ -23,7 +23,9 @@ const IPFS_CLI = path.join(
 const BASE_URL = new URL('http://127.0.0.1:5001/api/v0/');
 export async function rpcRequest(relativePath, args, flags) {
   const query = new URLSearchParams(flags);
-  args.forEach((arg) => query.append('arg', arg));
+  for (const arg of args) {
+    query.append('arg', arg);
+  }
   const url = new URL(relativePath, BASE_URL);
   const res = await fetch(`${url}?${query}`, { method: 'POST' });
 

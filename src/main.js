@@ -244,7 +244,7 @@ app.once('ready', async () => {
 
 function createTray() {
   // Create a Tray instance with the icon you want to use for the menu bar
-  tray = new Tray( path.join(__dirname, '../../assets/tray@3x.png'));
+  tray = new Tray(path.join(__dirname, '../../assets/tray@3x.png'));
   tray.on('mouse-down', (_event) => {
     if (mainWindow?.isVisible()) {
       mainWindow?.focus();
@@ -329,7 +329,9 @@ ipcMain.handle('dapp', async (_event, id) => {
 });
 
 async function resolveAllDapps() {
-  DAPPS.forEach((dapp) => resolveDapp(dapp).then(updateContextMenu));
+  for (const dapp of DAPPS) {
+    await resolveDapp(dapp).then(updateContextMenu);
+  }
 }
 
 const dappsResolver = setInterval(resolveAllDapps, 600_000); // 10 minutes
