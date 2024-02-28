@@ -26,4 +26,4 @@
  * ```
  */
 
-import './index.js';
+import './renderer/index';
