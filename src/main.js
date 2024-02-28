@@ -9,7 +9,7 @@ import http from 'http';
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { BrowserWindow, Menu, Tray, app, ipcMain, shell } from 'electron';
+import { BrowserWindow, Menu, Tray, app, ipcMain, session, shell } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
 import fetch from 'node-fetch';
@@ -221,6 +221,15 @@ function generateMenuItems() {
 }
 
 app.once('ready', async () => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': "connect-src 'self'",
+      },
+    });
+  });
+
   // Hide the app from the dock
   if (app.dock && !(await settings.get('dock'))) {
     app.dock.hide();
