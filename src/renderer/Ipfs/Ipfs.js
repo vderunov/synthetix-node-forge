@@ -1,4 +1,4 @@
-import React from 'react';
+import { ArrowRightIcon, CheckIcon, CopyIcon } from '@chakra-ui/icons';
 import {
   Box,
   Code,
@@ -19,17 +19,17 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { ArrowRightIcon, CheckIcon, CopyIcon } from '@chakra-ui/icons';
+import React from 'react';
+import { SYNTHETIX_IPNS } from '../../const';
+import { useFollowerInfo } from './useFollowerInfo';
+import { useHostingSize } from './useHostingSize';
+import { useIsFollowerInstalled } from './useIsFollowerInstalled';
+import { useIsIpfsInstalled } from './useIsIpfsInstalled';
+import { useIsIpfsRunning } from './useIsIpfsRunning';
 import { usePeerId } from './usePeerId';
 import { usePeers } from './usePeers';
 import { useRateIn } from './useRateIn';
 import { useRateOut } from './useRateOut';
-import { useHostingSize } from './useHostingSize';
-import { useIsIpfsRunning } from './useIsIpfsRunning';
-import { useIsIpfsInstalled } from './useIsIpfsInstalled';
-import { useIsFollowerInstalled } from './useIsFollowerInstalled';
-import { useFollowerInfo } from './useFollowerInfo';
-import { SYNTHETIX_IPNS } from '../../const';
 
 function handleCopy(text) {
   if (text) {

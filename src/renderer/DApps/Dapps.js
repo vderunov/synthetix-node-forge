@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Button, Heading, Image, Link, Spinner, Flex, Skeleton } from '@chakra-ui/react';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { Box, Button, Flex, Heading, Image, Link, Skeleton, Spinner } from '@chakra-ui/react';
+import React from 'react';
 import { useDapps } from './useDapps';
 
 function DappButton({ dapp }) {

@@ -9,7 +9,7 @@ import http from 'http';
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { BrowserWindow, Menu, Tray, app, ipcMain, shell, session } from 'electron';
+import { BrowserWindow, Menu, Tray, app, ipcMain, session, shell } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import logger from 'electron-log';
 import fetch from 'node-fetch';

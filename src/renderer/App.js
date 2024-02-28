@@ -1,7 +1,7 @@
-import React from 'react';
 import { Box, Text } from '@chakra-ui/react';
-import { Ipfs } from './Ipfs';
+import React from 'react';
 import { Dapps } from './DApps';
+import { Ipfs } from './Ipfs';
 
 export default function App() {
   return (
