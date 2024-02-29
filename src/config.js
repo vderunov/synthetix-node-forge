@@ -17,9 +17,3 @@ export const DappSchema = z
   });
 
 export const DappsSchema = z.array(DappSchema);
-
-export const ConfigSchema = z
-  .object({
-    dapps: DappsSchema,
-  })
-  .strict();
