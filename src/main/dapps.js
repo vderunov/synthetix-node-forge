@@ -1,19 +1,14 @@
 import * as contentHash from '@ensdomains/content-hash';
 import logger from 'electron-log';
+import { Contract, ensNormalize, getDefaultProvider, namehash } from 'ethers';
 import fetch from 'node-fetch';
-import { http, createPublicClient } from 'viem';
-import { mainnet } from 'viem/chains';
-import { namehash, normalize } from 'viem/ens';
 import { rpcRequest } from './ipfs';
 
 Object.assign(global, { fetch });
 
 export const DAPPS = [];
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-});
+const provider = getDefaultProvider();
 
 const resolverAbi = [
   {
@@ -37,15 +32,13 @@ export async function resolveEns(dapp) {
   if (!dapp.ens) {
     throw new Error('Neither ipns nor ens was set, cannot resolve');
   }
-  const name = normalize(dapp.ens);
-  const resolverAddress = await client.getEnsResolver({ name });
-  const hash = await client.readContract({
-    address: resolverAddress,
-    abi: resolverAbi,
-    functionName: 'contenthash',
-    args: [namehash(name)],
-  });
+
+  const name = ensNormalize(dapp.ens);
+  const resolverAddress = (await provider.getResolver(name)).address;
+  const contract = new Contract(resolverAddress, resolverAbi, provider);
+  const hash = await contract.contenthash(namehash(name));
   const codec = contentHash.getCodec(hash);
+
   return {
     codec,
     hash: contentHash.decode(hash),
