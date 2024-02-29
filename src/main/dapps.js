@@ -1,6 +1,5 @@
-import * as contentHash from '@ensdomains/content-hash';
 import logger from 'electron-log';
-import { Contract, ensNormalize, getDefaultProvider, namehash } from 'ethers';
+import { getDefaultProvider, EnsResolver } from 'ethers';
 import fetch from 'node-fetch';
 import { rpcRequest } from './ipfs';
 
@@ -9,18 +8,6 @@ Object.assign(global, { fetch });
 export const DAPPS = [];
 
 const provider = getDefaultProvider();
-
-const resolverAbi = [
-  {
-    constant: true,
-    inputs: [{ internalType: 'bytes32', name: 'node', type: 'bytes32' }],
-    name: 'contenthash',
-    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
-    payable: false,
-    stateMutability: 'view',
-    type: 'function',
-  },
-];
 
 export async function resolveEns(dapp) {
   if (dapp.ipns) {
@@ -33,16 +20,19 @@ export async function resolveEns(dapp) {
     throw new Error('Neither ipns nor ens was set, cannot resolve');
   }
 
-  const name = ensNormalize(dapp.ens);
-  const resolverAddress = (await provider.getResolver(name)).address;
-  const contract = new Contract(resolverAddress, resolverAbi, provider);
-  const hash = await contract.contenthash(namehash(name));
-  const codec = contentHash.getCodec(hash);
+  const ensResolver = await EnsResolver.fromName(provider, dapp.ens);
 
-  return {
-    codec,
-    hash: contentHash.decode(hash),
-  };
+  if (!ensResolver) {
+    throw new Error(`No resolver found for the ENS name: ${dapp.ens}`);
+  }
+  const contentHash = await ensResolver.getContentHash();
+
+  if (!contentHash) {
+    throw new Error(`No content hash found for the ENS name: ${dapp.ens}`);
+  }
+  const [codec, hash] = contentHash.split('://');
+
+  return { codec, hash };
 }
 
 export async function resolveQm(ipns) {
