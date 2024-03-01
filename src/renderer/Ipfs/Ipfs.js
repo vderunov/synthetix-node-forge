@@ -127,6 +127,7 @@ export function Ipfs() {
                           whiteSpace="nowrap"
                           overflow="hidden"
                           textOverflow="ellipsis"
+                          title={peer.id}
                         >
                           {`${i}`.padStart(3, '0')}.{' '}
                           <Tooltip
