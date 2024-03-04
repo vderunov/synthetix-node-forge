@@ -1,15 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons';
-import {
-  Box,
-  Button,
-  Heading,
-  Image,
-  Link,
-  Skeleton,
-  Spinner,
-  Grid,
-  GridItem,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Image, Link, Skeleton, Spinner } from '@chakra-ui/react';
 import React from 'react';
 import { useDapps } from './useDapps';
 
@@ -26,7 +16,7 @@ function DappButton({ dapp }) {
       rightIcon={dapp.url ? <ExternalLinkIcon /> : <Spinner size="xs" />}
       isDisabled={!dapp.url}
       _hover={{ textDecoration: 'none' }}
-      w="100%"
+      flexGrow={1}
     >
       {dapp.label}
     </Button>
@@ -40,17 +30,13 @@ export function Dapps() {
       <Heading mb="3" size="sm">
         Available DApps:
       </Heading>
-      {dapps.length > 0 ? (
-        <Grid templateColumns="repeat(3, 1fr)" gap={2} mb={2}>
-          {dapps.map((dapp) => (
-            <GridItem key={dapp.id}>
-              <DappButton dapp={dapp} />
-            </GridItem>
-          ))}
-        </Grid>
-      ) : (
-        <Skeleton height={8} />
-      )}
+      <Flex gap={2} mb="2" flexWrap="wrap">
+        {dapps.length > 0 ? (
+          dapps.map((dapp) => <DappButton key={dapp.id} dapp={dapp} />)
+        ) : (
+          <Skeleton w="full" height={8} />
+        )}
+      </Flex>
     </Box>
   );
 }
