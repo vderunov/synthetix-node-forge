@@ -127,7 +127,6 @@ export function Ipfs() {
                           whiteSpace="nowrap"
                           overflow="hidden"
                           textOverflow="ellipsis"
-                          title={peer.id}
                         >
                           {`${i}`.padStart(3, '0')}.{' '}
                           <Tooltip
@@ -135,7 +134,11 @@ export function Ipfs() {
                             placement="top"
                             openDelay={200}
                             fontSize="xs"
-                            label={peer.id === peerId ? 'Your connected Peer ID' : 'Copy Peer ID'}
+                            label={
+                              peer.id === peerId
+                                ? `Your connected Peer ID\n${peer.id}`
+                                : `Copy Peer ID\n${peer.id}`
+                            }
                           >
                             <Text
                               as="span"
